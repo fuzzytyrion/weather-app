@@ -33,13 +33,16 @@ if (argv.address) {
     address = argv.address;
 } else {
     address = fileAccess.getDefault().location;
-} 
+}
 
-var encodedAddress = encodeURIComponent(address);
-var geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=AIzaSyADA_yTBbzkAwB8k7UxHqVHoMf3EYAhf3A`;
 
-axios.get(geocodeUrl).then((response) => {
-    if(response.data.status === 'ZERO_RESULTS') {
+fileAccess.getDefault().then((response) => {
+    var address = argv.address || response.location;
+    var encodedAddress = encodeURIComponent(address);
+    var geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=AIzaSyADA_yTBbzkAwB8k7UxHqVHoMf3EYAhf3A`;
+    return axios.get(geocodeUrl);
+}).then((response) => {
+    if (response.data.status === 'ZERO_RESULTS') {
         throw new Error('Unable to find that address');
     }
     var lat = response.data.results[0].geometry.location.lat;
