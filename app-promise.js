@@ -1,12 +1,19 @@
 const yargs = require('yargs');
 const axios = require('axios');
+const fileAccess = require('./file_access/file-access.js');
 
 const argv = yargs
     .options({
         a: {
-            demand: true,
+            demand: false,
             alias: 'address',
             describe: 'Address to get weather for',
+            string: true
+        },
+        d: {
+            demand: false,
+            alias: 'default',
+            describe: 'Set default address',
             string: true
         }
     })
@@ -14,7 +21,21 @@ const argv = yargs
     .alias('help', 'h')
     .argv;
 
-var encodedAddress = encodeURIComponent(argv.address);
+if (argv.default) {
+    fileAccess.saveDefault({
+        location: argv.default
+    });
+}
+
+var address = "";
+
+if (argv.address) {
+    address = argv.address;
+} else {
+    address = fileAccess.getDefault().location;
+} 
+
+var encodedAddress = encodeURIComponent(address);
 var geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=AIzaSyADA_yTBbzkAwB8k7UxHqVHoMf3EYAhf3A`;
 
 axios.get(geocodeUrl).then((response) => {
