@@ -21,23 +21,28 @@ const argv = yargs
     .alias('help', 'h')
     .argv;
 
-if (argv.default) {
-    fileAccess.saveDefault({
-        location: argv.default
+var getAddress = (argv) => {
+    return new Promise((resolve, reject) => {
+        if (argv.address) {
+            resolve({
+                location: argv.address
+            });
+        } else if (argv.default) {
+            fileAccess.saveDefault(argv.default).then((response) => {
+                resolve({
+                    location: argv.address
+                });
+            });
+        } else {
+            fileAccess.getDefault().then((response) => {
+                resolve(response);
+            });
+        }
     });
-}
+};
 
-var address = "";
-
-if (argv.address) {
-    address = argv.address;
-} else {
-    address = fileAccess.getDefault().location;
-}
-
-
-fileAccess.getDefault().then((response) => {
-    var address = argv.address || response.location;
+getAddress(argv).then((response) => {
+    var address = response.location;
     var encodedAddress = encodeURIComponent(address);
     var geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=AIzaSyADA_yTBbzkAwB8k7UxHqVHoMf3EYAhf3A`;
     return axios.get(geocodeUrl);

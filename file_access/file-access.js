@@ -12,7 +12,16 @@ var getDefault = () => {
 };
 
 var saveDefault = (location) => {
-    fs.writeFileSync('default-data.json', JSON.stringify(location));
+    return new Promise((resolve, reject) => {
+        fs.writeFile('default-data.json', (error) => {
+            if (error) {
+                reject('error!');
+            } else {
+                resolve('good times!');
+            }
+        });
+    })
+    
 };
 
 module.exports = {
